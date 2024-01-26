@@ -20,7 +20,7 @@ const getAllContacts = async (req, res) => {
 const getOneContact = async (req, res) => {
   const { id: _id } = req.params;
   const { _id: owner } = req.user;
-  const result = await User.findById({ _id, owner });
+  const result = await User.findOne({ _id, owner });
 
   if (!result) {
     throw HttpError(404);
