@@ -1,6 +1,6 @@
 import express from "express";
 
-import { isEmptyBody, authenticate, upload} from "../../middlewares/index.js";
+import { isEmptyBody, authenticate, upload, resizeAvatar} from "../../middlewares/index.js";
 
 import { validateBody } from "../../decorators/index.js";
 
@@ -28,6 +28,6 @@ authRouter.post("/logout", authenticate, authController.logout);
 
 authRouter.get("/current", authenticate, authController.getCurrent);
 
-authRouter.patch("/avatars", upload.single("avatarURL"), authenticate, authController.updateAvatar);
+authRouter.patch("/avatars", authenticate,upload.single("avatarURL"),  resizeAvatar, authController.updateAvatar);
 
 export default authRouter;

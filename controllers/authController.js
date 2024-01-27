@@ -109,6 +109,11 @@ const updateAvatar = async (req, res) => {
     throw HttpError(401, "Not authorized");
   }
 
+  if (oldURL) {
+		const oldAvatarPath = path.join(path.resolve("public", req.user.avatarURL));
+		await fs.unlink(oldAvatarPath);
+	}
+
   res.json({
       avatarURL: result.avatarURL
   });
