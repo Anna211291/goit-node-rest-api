@@ -97,7 +97,7 @@ const logout = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  const {_id, avatarURL: oldURL } = req.user;
+  const {_id} = req.user;
 
    const { path: oldPath, filename } = req.file;
   const newPath = path.join(avatarPath, filename);
@@ -109,7 +109,7 @@ const updateAvatar = async (req, res) => {
     throw HttpError(401, "Not authorized");
   }
 
-  if (oldURL) {
+  if (req.user.avatarURL) {
 		const oldAvatarPath = path.join(path.resolve("public", req.user.avatarURL));
 		await fs.unlink(oldAvatarPath);
 	}
