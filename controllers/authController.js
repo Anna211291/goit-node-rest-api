@@ -19,18 +19,21 @@ const avatarPath = path.resolve("public", "avatars");
 const singup = async (req, res) => {
   const { email, password } = req.body;
 
+
   const user = await User.findOne({ email });
   if (user) {
     throw HttpError(409, "Email in use");
   }
 
-  let avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mp" }, false);
+let avatarURL = gravatar.url(email, {s: '200', r: 'pg', d: 'mp'}, false);
 
   if (req.file) {
-    const { path: oldPath, filename } = req.file;
-    const newPath = path.join(avatarPath, filename);
-    await fs.rename(oldPath, newPath);
-    avatarURL = path.join("avatars", filename);
+     
+   const { path: oldPath, filename } = req.file;
+  const newPath = path.join(avatarPath, filename);
+  await fs.rename(oldPath, newPath);
+  avatarURL = path.join("avatars", filename);
+
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
@@ -55,6 +58,7 @@ const verificationToken = nanoid();
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
       avatarURL: newUser.avatarURL,
     },
   });
@@ -148,29 +152,6 @@ const logout = async (req, res) => {
   res.status(204).json();
 };
 
-const updateAvatar = async (req, res) => {
-  const { _id, avatarURL: oldURL } = req.user;
-
-  const { path: oldPath, filename } = req.file;
-  const newPath = path.join(avatarPath, filename);
-  await fs.rename(oldPath, newPath);
-  const avatarURL = path.join("avatars", filename);
-
-  const result = await User.findOneAndUpdate(_id, { avatarURL });
-  if (!result) {
-    throw HttpError(401, "Not authorized");
-  }
-
-  if (oldURL) {
-    const oldAvatarPath = path.join(path.resolve("public", req.user.avatarURL));
-    await fs.unlink(oldAvatarPath);
-  }
-
-  res.json({
-    avatarURL: result.avatarURL,
-  });
-};
-
 export default {
   singup: ctrlWrapper(singup),
   verify: ctrlWrapper(verify),
@@ -178,5 +159,4 @@ export default {
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
-  updateAvatar: ctrlWrapper(updateAvatar),
 };
