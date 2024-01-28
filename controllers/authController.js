@@ -10,6 +10,7 @@ import { HttpError } from "../helpers/index.js";
 
 import { ctrlWrapper } from "../decorators/index.js";
 import { rename } from "fs";
+import { error } from "console";
 
 const { JWT_SECRET } = process.env;
 
@@ -99,19 +100,26 @@ const logout = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const {_id} = req.user;
 
+  if (!req.file) {
+    throw HttpError(400, "No file uploaded");
+  } 
    const { path: oldPath, filename } = req.file;
   const newPath = path.join(avatarPath, filename);
   await fs.rename(oldPath, newPath);
   const avatarURL = path.join("avatars", filename);
 
-  const result = await User.findOneAndUpdate(_id, {avatarURL});
+  const result = await User.findOneAndUpdate(_id, {avatarURL}, { new: true });
+
   if (!result) {
     throw HttpError(401, "Not authorized");
   }
 
   if (req.user.avatarURL) {
 		const oldAvatarPath = path.join(path.resolve("public", req.user.avatarURL));
-		await fs.unlink(oldAvatarPath);
+    try {await fs.unlink(oldAvatarPath);}
+		catch (err) {
+      console.log(err);
+    }
 	}
 
   res.json({
