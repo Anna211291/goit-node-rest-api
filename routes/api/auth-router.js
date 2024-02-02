@@ -4,7 +4,7 @@ import { isEmptyBody, authenticate, upload, resizeAvatar} from "../../middleware
 
 import { validateBody } from "../../decorators/index.js";
 
-import { userSignupAndSinginSchema } from "../../models/User.js";
+import { userSignupAndSinginSchema, userEmailSchema } from "../../models/User.js";
 
 import authController from "../../controllers/authController.js";
 
@@ -16,6 +16,10 @@ authRouter.post(
   validateBody(userSignupAndSinginSchema),
   authController.singup
 );
+
+authRouter.get("/verify/:verificationToken", authController.verify);
+
+authRouter.post("/verify", isEmptyBody, validateBody(userEmailSchema), authController.resendVerifyEmail)
 
 authRouter.post(
   "/login",
